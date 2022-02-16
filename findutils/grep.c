@@ -58,7 +58,7 @@
 #include "xregex.h"
 
 //usage:#define grep_trivial_usage
-//usage:       "[-HhnlLoqvsrRiwFE"
+//usage:       "[-HhnlLopqvsrRiwFE"
 //usage:	IF_EXTRA_COMPAT("z")
 //usage:       "] [-m N] "
 //usage:	IF_FEATURE_GREP_CONTEXT("[-A|B|C N] ")
@@ -72,6 +72,7 @@
 //usage:     "\n	-L	Show only names of files that don't match"
 //usage:     "\n	-c	Show only count of matching lines"
 //usage:     "\n	-o	Show only the matching part of line"
+//usage:     "\n	-p	Pipe. Return 0 regardless of found PATTERN"
 //usage:     "\n	-q	Quiet. Return 0 if PATTERN is found, 1 otherwise"
 //usage:     "\n	-v	Select non-matching lines"
 //usage:     "\n	-s	Suppress open and read errors"
@@ -107,7 +108,7 @@
 
 /* -e,-f are lists; -m,-A,-B,-C have numeric param */
 #define OPTSTR_GREP \
-	"lnqvscFiHhe:*f:*LorRm:+wx" \
+	"lnpqvscFiHhe:*f:*LorRm:+wx" \
 	IF_FEATURE_GREP_CONTEXT("A:+B:+C:+") \
 	"E" \
 	IF_EXTRA_COMPAT("z") \
@@ -117,6 +118,7 @@
 enum {
 	OPTBIT_l, /* list matched file names only */
 	OPTBIT_n, /* print line# */
+	OPTBIT_p, /* pipe - exit(EXIT_SUCCESS) regardless of match */
 	OPTBIT_q, /* quiet - exit(EXIT_SUCCESS) on first match */
 	OPTBIT_v, /* invert the match, to select non-matching lines */
 	OPTBIT_s, /* suppress errors about file open errors */
@@ -141,6 +143,7 @@ enum {
 	IF_EXTRA_COMPAT(            OPTBIT_z ,) /* input is NUL terminated */
 	OPT_l = 1 << OPTBIT_l,
 	OPT_n = 1 << OPTBIT_n,
+	OPT_p = 1 << OPTBIT_p,
 	OPT_q = 1 << OPTBIT_q,
 	OPT_v = 1 << OPTBIT_v,
 	OPT_s = 1 << OPTBIT_s,
@@ -877,5 +880,8 @@ int grep_main(int argc UNUSED_PARAM, char **argv)
 	/* 0 = success, 1 = failed, 2 = error */
 	if (open_errors)
 		return 2;
+	/* when `--pipe` is given, don't signal matches */
+	if (option_mask32 & OPT_p)
+		return 0;
 	return !matched; /* invert return value: 0 = success, 1 = failed */
 }
