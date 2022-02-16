@@ -117,7 +117,7 @@
 enum {
 	OPTBIT_l, /* list matched file names only */
 	OPTBIT_n, /* print line# */
-	OPTBIT_q, /* quiet - exit(EXIT_SUCCESS) of first match */
+	OPTBIT_q, /* quiet - exit(EXIT_SUCCESS) on first match */
 	OPTBIT_v, /* invert the match, to select non-matching lines */
 	OPTBIT_s, /* suppress errors about file open errors */
 	OPTBIT_c, /* count matches per file (suppresses normal output) */
